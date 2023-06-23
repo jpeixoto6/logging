@@ -1,0 +1,53 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: logging-grafana-alertmanager-access
+rules:
+  - apiGroups:
+    - ''
+    resources:
+    - namespaces
+    verbs:
+    - get
+  - apiGroups:
+    - monitoring.coreos.com
+    resources:
+    - alertmanagers
+    verbs:
+    - patch
+    resourceNames:
+    - non-existant
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: logging-grafana-alertmanager-access
+  namespace: openshift-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: logging-grafana-alertmanager-access
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+    namespace: openshift-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/part-of: openshift-monitoring
+  name: logging-grafana-users-alertmanager-access
+  namespace: openshift-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: monitoring-alertmanager-edit
+subjects:
+- kind: Group
+  name: system:authenticated
+  apiGroup: rbac.authorization.k8s.io
+- kind: Group
+  name: system:authenticated:oauth
+  apiGroup: rbac.authorization.k8s.io
